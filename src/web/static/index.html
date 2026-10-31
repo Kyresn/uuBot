@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Uuharness 控制台</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <h1>Uuharness 控制台</h1>
+
+      <section id="login-view" class="panel">
+        <h2>登录</h2>
+        <form id="login-form" method="post" action="#" autocomplete="off">
+          <label for="token">访问 token</label>
+          <input
+            id="token"
+            name="token"
+            type="password"
+            autocomplete="off"
+            spellcheck="false"
+            required
+          />
+          <button type="submit">登录</button>
+        </form>
+        <p id="login-message" class="message" role="alert"></p>
+        <p class="hint">token 只保存在本次登录的会话中，不会写入浏览器存储。</p>
+      </section>
+
+      <section id="status-view" class="panel" hidden>
+        <div class="panel-head">
+          <h2>控制台</h2>
+          <button id="logout" type="button" class="secondary">退出登录</button>
+        </div>
+
+        <nav class="tabs" aria-label="页面切换">
+          <button id="tab-status" type="button" class="tab active">状态</button>
+          <button id="tab-chat" type="button" class="tab">对话</button>
+          <button id="tab-settings" type="button" class="tab">设置</button>
+          <button id="tab-models" type="button" class="tab">模型</button>
+          <button id="tab-conversations" type="button" class="tab">记录</button>
+          <button id="tab-plan" type="button" class="tab">计划</button>
+          <button id="tab-architecture" type="button" class="tab">架构</button>
+          <button id="tab-control" type="button" class="tab">控制</button>
+        </nav>
+
+        <section id="status-section">
+          <div class="card">
+            <h3>健康</h3>
+            <pre id="health">—</pre>
+          </div>
+          <div class="card">
+            <h3>运行状态</h3>
+            <pre id="state">—</pre>
+          </div>
+          <button id="refresh" type="button">刷新</button>
+        </section>
+
+        <section id="chat-section" hidden>
+          <div class="panel-head">
+            <h3>网页对话</h3>
+            <span class="badge">web:main</span>
+          </div>
+          <p class="hint" id="chat-notice">
+            对话只保存在内存中，harness 重启即清空，不写入记忆。回复与 QQ
+            共用同一条红线闸；本页可见时每 2 秒刷新一次。
+          </p>
+          <p id="chat-message" class="message" role="alert"></p>
+          <div id="chat-list" class="chat-list" aria-live="polite"></div>
+          <form id="chat-form" class="chat-form" autocomplete="off">
+            <input
+              id="chat-input"
+              type="text"
+              placeholder="说点什么…"
+              spellcheck="false"
+              aria-label="对话输入"
+            />
+            <button type="submit">发送</button>
+          </form>
+        </section>
+
+        <section id="settings-section" hidden>
+          <div class="panel-head">
+            <h3>设置</h3>
+            <div class="button-row">
+              <button id="settings-refresh" type="button" class="secondary">重新读取</button>
+              <button id="save-settings" type="button">保存配置</button>
+            </div>
+          </div>
+          <p class="hint">
+            保存走「干跑 → 原子写 → 热生效」，非法值不会落盘。标注「需重启」的项
+            在重启 harness 后生效。密钥只显示「已设置 · 末四位」，打码值不会被提交；
+            留空保持原值，「清除」提交 null。
+          </p>
+          <p id="settings-message" class="message" role="alert"></p>
+          <div id="settings-sections" class="rows"></div>
+        </section>
+
+        <section id="models-section" hidden>
+          <div class="panel-head">
+            <h3>模型配置</h3>
+            <button id="save-models" type="button">保存配置</button>
+          </div>
+          <p id="models-message" class="message" role="alert"></p>
+
+          <div class="card">
+            <div class="panel-head">
+              <h3>Chat 端点</h3>
+              <button id="add-endpoint" type="button" class="secondary">添加端点</button>
+            </div>
+            <div id="endpoint-rows" class="rows"></div>
+          </div>
+
+          <div id="service-sections" class="rows"></div>
+
+          <div class="card">
+            <h3>连通性测试</h3>
+            <p class="hint">测试会向对应服务发送一次最小请求，可能消耗少量 token。</p>
+            <div id="test-buttons" class="button-row"></div>
+            <div id="test-results" class="rows"></div>
+          </div>
+        </section>
+
+        <section id="conversations-section" hidden>
+          <div class="panel-head">
+            <h3>对话记录</h3>
+            <button id="conv-refresh" type="button">刷新</button>
+          </div>
+          <p class="hint">
+            入站记录是「入队时」的事件，可能包含之后被淘汰或静默重排的条目；
+            出站只表示已交给渠道插件，不保证送达。
+          </p>
+          <div class="filters">
+            <label class="field">
+              <span class="field-label">渠道（精确匹配）</span>
+              <input id="conv-channel" type="text" placeholder="例如 qq" autocomplete="off" />
+            </label>
+            <label class="field">
+              <span class="field-label">方向</span>
+              <select id="conv-direction">
+                <option value="">全部</option>
+                <option value="in">入站</option>
+                <option value="out">出站</option>
+              </select>
+            </label>
+            <label class="field">
+              <span class="field-label">条数（1–500）</span>
+              <input id="conv-limit" type="number" min="1" max="500" value="200" />
+            </label>
+          </div>
+          <p id="conv-message" class="message" role="alert"></p>
+          <div id="conv-list" class="rows"></div>
+          <button id="conv-more" type="button" class="secondary" hidden>加载更早</button>
+        </section>
+
+        <section id="plan-section" hidden>
+          <div class="panel-head">
+            <h3>当前计划</h3>
+            <button id="plan-refresh" type="button">刷新</button>
+          </div>
+          <p class="hint">
+            数据源：运行时覆盖 <code>state/plan.json</code>，否则入库的
+            <code>docs/plan.json</code>。
+          </p>
+          <p id="plan-message" class="message" role="alert"></p>
+          <div id="plan-content" class="rows"></div>
+        </section>
+
+        <section id="architecture-section" hidden>
+          <div class="panel-head">
+            <h3>架构总览</h3>
+            <button id="arch-refresh" type="button">刷新</button>
+          </div>
+          <p class="hint">静态节点/边 + 当前进程的实时状态；记忆层为 M3 计划。</p>
+          <p id="arch-message" class="message" role="alert"></p>
+          <div id="arch-content" class="rows"></div>
+        </section>
+
+        <section id="control-section" hidden>
+          <div class="panel-head">
+            <h3>控制</h3>
+            <button id="control-refresh" type="button">刷新</button>
+          </div>
+          <p class="hint">
+            审批决策只走 POST；本页可见时每 15 秒刷新一次，切走即停。
+            网页与 QQ 私聊共用同一份审批与指令语义。
+          </p>
+          <p id="control-message" class="message" role="alert"></p>
+
+          <div class="card">
+            <h3>待审批</h3>
+            <div id="control-approvals" class="rows"></div>
+          </div>
+
+          <div class="card">
+            <h3>运行闸门</h3>
+            <div id="control-gates" class="rows"></div>
+          </div>
+
+          <div class="card">
+            <h3>指令</h3>
+            <p class="hint">
+              与 QQ 私聊相同的 <code>#</code> 指令；网页不推断自然语言。
+            </p>
+            <form id="control-command-form" class="command-row" autocomplete="off">
+              <input
+                id="control-command-input"
+                type="text"
+                placeholder="例如 #状态 或 #安静 30"
+                spellcheck="false"
+              />
+              <button type="submit">发送</button>
+            </form>
+            <p id="control-command-reply" class="message" role="alert"></p>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

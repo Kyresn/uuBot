@@ -1,0 +1,9 @@
+{
+  "name": "web",
+  "kind": "channel",
+  "channelPrefix": "web",
+  "apiVersion": 1,
+  "version": "0.1.0",
+  "entry": "index.ts",
+  "description": "Web console chat channel"
+}

@@ -1,0 +1,9 @@
+{
+  "name": "cli",
+  "kind": "channel",
+  "channelPrefix": "cli",
+  "apiVersion": 1,
+  "version": "0.1.0",
+  "entry": "index.ts",
+  "description": "CLI debug channel"
+}

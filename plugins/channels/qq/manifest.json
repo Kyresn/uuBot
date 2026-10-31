@@ -1,0 +1,9 @@
+{
+  "name": "qq",
+  "kind": "channel",
+  "channelPrefix": "qq",
+  "apiVersion": 1,
+  "version": "0.1.0",
+  "entry": "index.ts",
+  "description": "QQ channel over OneBot 11"
+}

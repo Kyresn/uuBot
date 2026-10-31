@@ -1,0 +1,21 @@
+{
+  "name": "echo",
+  "kind": "capability",
+  "apiVersion": 1,
+  "version": "0.1.0",
+  "entry": "index.mjs",
+  "description": "Reference capability plugin: echoes the input text",
+  "permissions": [],
+  "tools": [
+    {
+      "name": "echo",
+      "description": "echo the input",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" }
+        }
+      }
+    }
+  ]
+}

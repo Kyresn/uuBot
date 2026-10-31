@@ -1,0 +1,116 @@
+# uuBot + NapCat 本地编排。
+#
+# 用法（在仓库根目录）：
+#   docker compose --env-file .env -f deploy/docker-compose.yml up -d
+# `--env-file .env` 让 compose 的 ${...} 插值读到根目录 .env（env_file 只注入容器，
+# 不参与 compose 文件自身的插值）。
+#
+# 网络拓扑：NapCat 主动连 harness 的 ws://harness:3001/onebot/v11/ws，
+# 两个服务只在内部网络 uuharness 上互通。NapCat 不映射任何宿主机端口；
+# harness 只把网页管理台发布到宿主机回环地址（见下方 harness 的 ports）。
+#
+# harness 的 QqServer 默认只监听 127.0.0.1；跨容器访问需要 QQ_WS_HOST=0.0.0.0
+# （下面已设）。注意它只在 harness.json 不存在时被首次导入一次；已有配置文件
+# 后以 config/harness.json 的 qq.wsHost 为准。该端口只在内部 bridge 网络上可达，
+# 不要取消注释把它映射到宿主机公网。
+name: uuharness
+
+services:
+  harness:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: uuharness:local
+    restart: unless-stopped
+    # 不以 root 运行：agent 写的能力插件落在绑定挂载的 plugins/ 上，root 会
+    # 让这些文件归 root 所有，宿主机上再想编辑就得 sudo。HARNESS_UID/GID
+    # 未导出时默认 1000；宿主机 uid 不是 1000 时先 export（见 napcat README §1）。
+    user: "${HARNESS_UID:-1000}:${HARNESS_GID:-1000}"
+    # 非 root 用户的 HOME 需要可写，容器内 /tmp 最省事。
+    init: true
+    environment:
+      HOME: /tmp
+      # 跨容器可达的监听地址；只在内部网络有效。
+      QQ_WS_HOST: "0.0.0.0"
+      # 网页管理台：容器内必须绑 0.0.0.0 才能被宿主端口映射访问；WEB_ALLOW_REMOTE
+      # 是允许非 loopback 绑定的显式开关。宿主机侧只映射到 127.0.0.1（见 ports），
+      # 公网访问必须自行加 TLS 反向代理，并把域名写进 WEB_ALLOWED_HOSTS。
+      WEB_HOST: "0.0.0.0"
+      WEB_ALLOW_REMOTE: "1"
+      # 覆盖 env_file 里的 WEB_PORT：容器监听端口必须与宿主机发布端口一致，
+      # 否则浏览器发来的 Host/Origin 端口不在白名单里（421/403）。同一个
+      # ${WEB_PORT} 同时用于这里和 ports 的两侧，容器内外始终同号。
+      WEB_PORT: "${WEB_PORT:-3080}"
+      DATA_DIR: /app/state
+      CONFIG_DIR: /app/config
+    # env_file 只在 harness.json 不存在时有用：首次启动会把 QQ_* / TICK_* 等
+    # 导入一次并落盘到挂载的 ../config/harness.json；之后以该文件为准，这里的
+    # QQ_* 被忽略。模型 key 在 ../config/models.json，WEB_* 仍从 env 读取。
+    env_file:
+      - ../.env
+    volumes:
+      # 绑定挂载优先于镜像内的 plugins 副本：agent 自己写的能力插件落在宿主机上，
+      # 重建镜像/容器不丢；镜像内的 plugins/ 只作挂载缺失时的兜底。
+      - ../plugins:/app/plugins
+      # 模型配置与运行期状态（对话记录、可选计划覆盖）。两者都不入库。
+      # 非 root 用户（HARNESS_UID/GID）必须能写这两个目录：
+      #   mkdir -p config state && sudo chown -R "${HARNESS_UID:-1000}:${HARNESS_GID:-1000}" config state
+      - ../config:/app/config
+      - ../state:/app/state
+    # 默认只把网页管理台绑到宿主机回环地址；不要改成 0.0.0.0 除非前面有 TLS 反代。
+    # 发布端口与容器监听端口必须同号（见上面的 WEB_PORT）。
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3080}:${WEB_PORT:-3080}"
+    # 镜像里没有 curl：用 node 自带的 fetch 探活（只要求 2xx）。
+    # 探针必须读容器自己的 WEB_PORT，否则改端口后健康状态与真实监听不一致。
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "const p=process.env.WEB_PORT||'3080';fetch('http://127.0.0.1:'+p+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    networks:
+      - uuharness
+
+  napcat:
+    # 固定版本而非 :latest：NapCat 的配置/路径约定随版本变化，锁版本才能复现。
+    # 需要换版本时改这里；升级前先读 NapCat 的 release note。
+    image: mlikiowa/napcat-docker:v4.18.41
+    restart: unless-stopped
+    environment:
+      NAPCAT_UID: "${NAPCAT_UID:-1000}"
+      NAPCAT_GID: "${NAPCAT_GID:-1000}"
+      # 登录的 QQ 号；由 compose 插值从根目录 .env 的 QQ_ACCOUNT 读取。
+      ACCOUNT: "${QQ_ACCOUNT:-}"
+    volumes:
+      # NapCat 的 OneBot/WebUI 配置与 QQ 登录态；两者都含凭据，已在
+      # deploy/napcat/.gitignore 中排除。
+      - ./napcat/data:/app/napcat/config
+      - ./napcat/qq:/app/.config/QQ
+    # 不映射宿主机端口：只允许 harness 通过内部网络访问。首次扫码登录见
+    # deploy/napcat/README.md（二维码从 docker logs 读取）。
+    networks:
+      - uuharness
+
+  # M3 预留：记忆层（Postgres + pgvector）。本阶段不启动，保持注释。
+  # postgres:
+  #   image: pgvector/pgvector:pg17
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: uuharness
+  #     POSTGRES_PASSWORD: change-me
+  #     POSTGRES_DB: uuharness
+  #   volumes:
+  #     - ./postgres/data:/var/lib/postgresql/data
+  #   networks:
+  #     - uuharness
+
+networks:
+  uuharness:
+    driver: bridge

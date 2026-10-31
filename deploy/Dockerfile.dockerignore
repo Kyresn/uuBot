@@ -1,0 +1,23 @@
+# 构建上下文是仓库根目录；排除不该进镜像、也不该拖慢构建的东西。
+# 用 **/ 前缀，否则嵌套的 plugins/**/node_modules 仍会被送进构建上下文。
+**/node_modules
+dist
+.git
+.gitignore
+.env
+**/.env
+*.log
+
+# 运行期配置与状态：models.json 含明文密钥、transcript.jsonl 含对话记录。
+# 两者都由 compose 在运行时绑定挂载，镜像里不需要也不应该有一份副本。
+config/
+state/
+
+# 本地会话/工具产物
+.remember
+.superpowers
+.vscode
+
+# NapCat 登录态与配置（含凭据，绝不进镜像）
+deploy/napcat/data
+deploy/napcat/qq

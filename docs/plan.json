@@ -1,0 +1,73 @@
+{
+  "updatedAt": "2026-10-31T06:47:20Z",
+  "current": "M2.7",
+  "milestones": [
+    { "id": "M1", "title": "骨架：心跳循环 / CLI 渠道 / 端点池 / 人格种子 / 红线", "status": "done" },
+    { "id": "M2", "title": "加固：唤醒互斥与静默退避 / 中文红线 + 规范化 / 端点健康排序与断路器", "status": "done" },
+    { "id": "P1", "title": "插件宿主：manifest 校验 / 进程内通道插件 / 最长前缀路由 / 出站红线闸", "status": "done" },
+    { "id": "P2", "title": "能力插件：worker 隔离 / 权限代理 / 工具往返 / 状态机 / 封禁持久化", "status": "done" },
+    { "id": "M2a", "title": "QQ 渠道：OneBot 11 反向 WS / 群私聊收发 / 白黑名单 / 群护栏 / Docker", "status": "done" },
+    {
+      "id": "M2.5",
+      "title": "网页管理台：模型配置热生效 / 对话记录 / 当前计划 / 架构总览",
+      "status": "done",
+      "tasks": [
+        { "id": "T1", "title": "端点 tier 过滤 + 健康快照", "status": "done" },
+        { "id": "T2", "title": "ConfigStore：models.json 校验/干跑/原子写/监听", "status": "done" },
+        { "id": "T3", "title": "BrainHandle + 启动接线 + 退避状态迁移", "status": "done" },
+        { "id": "T4", "title": "网页服务：认证/会话/静态白名单/健康检查", "status": "done" },
+        { "id": "T5", "title": "模型 API + 模型页", "status": "done" },
+        { "id": "T6", "title": "对话记录 + 对话页", "status": "done" },
+        { "id": "T7", "title": "计划页 + 架构页 + Docker 接线 + 文档", "status": "done" }
+      ]
+    },
+    {
+      "id": "M2b",
+      "title": "QQ 完整控制面：#状态/#同意/#拒绝/#封禁 + 自然语言二次确认 + 红线拒绝改写 + notice 事件 + 主动私聊调度",
+      "status": "done",
+      "tasks": [
+        { "id": "T1", "title": "审批子系统：状态机/TTL/通道绑定/恰好一次执行", "status": "done" },
+        { "id": "T2", "title": "控制面核心：语法/意图/router/状态快照 + QQ 适配", "status": "done" },
+        { "id": "T3", "title": "QQ 通道扩展：notice/结构化段/静默双闸/唤醒限速", "status": "done" },
+        { "id": "T4", "title": "红线拒绝改写：封闭模板 + 二次校验 + 固定兜底", "status": "done" },
+        { "id": "T5a", "title": "核心装配：ApprovalService/ControlRouter/主动调度/注册表/worker env/关闭顺序", "status": "done" },
+        { "id": "T5b", "title": "网页控制面：control-api 路由 + SPA 控制页", "status": "done" }
+      ]
+    },
+    { "id": "M2.6", "title": "网页主控制台：网页对话 + 全量配置（含密钥）热生效 + 设置页", "status": "done",
+      "tasks": [
+        { "id": "T1", "title": "配置子系统：harness-schema/store/runtime-handle", "status": "done" },
+        { "id": "T2", "title": "配置接线：热生效 + QQ 插件重载 + 状态不丢", "status": "done" },
+        { "id": "T3", "title": "网页对话：web 渠道插件 + 桥接 + 对话页", "status": "done" },
+        { "id": "T4", "title": "设置页：全量配置编辑 + 掩码密钥", "status": "done" },
+        { "id": "T5", "title": "装配与文档：.env 瘦身 + README + plan", "status": "done" }
+      ] },
+    { "id": "M2.7", "title": "服务接缝：RuntimeServices {memory?, persona, mood?, clock, rng} + PersonaStore（CAS/持久化）", "status": "pending" },
+    { "id": "M2.8", "title": "路线图闭环：plan.json 维护约定 + CI 漂移检查 + 里程碑评审门", "status": "pending" },
+    { "id": "M3.0", "title": "存储 spike：node:sqlite 标志/FTS5、pgvector、中文 trigram、embedding 定维实测", "status": "pending" },
+    { "id": "M3a", "title": "存储端口 + SQLite + 入口事件落库 + persona CAS", "status": "pending" },
+    { "id": "M3b", "title": "Postgres 驱动（可选 pg 依赖）+ EmbeddingService（自动定维/回填）+ 后端平价", "status": "pending" },
+    { "id": "M3.5a", "title": "情绪核心：PAD + OCC 启发式评估 + 衰减 + 驱动 + 调制旋钮（无记忆依赖）", "status": "pending" },
+    { "id": "M3c", "title": "记忆写读管线：慢 tick 抽取/去重/取代、混合检索、rerank、预算、记忆页、评估集", "status": "pending" },
+    { "id": "M3.5b", "title": "情绪状态机 + 人格漂移 + 身份探针", "status": "pending" },
+    { "id": "M4a", "title": "对话质量：批处理防抖、统计发言门、空闲退避、分段与打字节奏、引用概率", "status": "pending" },
+    { "id": "M4b", "title": "情绪调制与表达：长度/风险/沉默旋钮，状态感知回复", "status": "pending" },
+    { "id": "M4.5", "title": "拟人包：群风格模仿、表情包库、亲密感/兴趣/怪癖、AI 身份否认策略", "status": "pending" },
+    { "id": "M5a", "title": "沙箱与身体核心：共享 argv 白名单、shell、fetch+Readability、凭据隔离、srt 围栏", "status": "pending" },
+    { "id": "M5b", "title": "Playwright + B 站（小号、限速、内存预算）", "status": "pending" },
+    { "id": "M6", "title": "能力运行时：manifest v2、CapabilityHub、MCP/CLI/技能适配器、策略差分审批、插件页", "status": "pending" },
+    { "id": "M6.5", "title": "控制面整合：QQ + 网页双通道审批、approvals.json、封禁/解封", "status": "pending" },
+    { "id": "M7", "title": "自进化五面：缺口检测、提案、独立验证、回滚、退役、安全复评", "status": "pending" },
+    { "id": "M8", "title": "睡眠与主动性：自进化睡眠、巩固重放、规律回放验证、主动话题依据检查", "status": "pending" },
+    { "id": "M9", "title": "浸泡与安全：72h soak、内存/预算门、对抗测试、删除审计、留存策略", "status": "pending" }
+  ],
+  "backlog": [
+    "记忆删除四条审计路径（用户决定 M9 前不实现）",
+    "TTS/STT 实际调用链路（QQ 语音收发、试听/试转写）",
+    "GUI 控制能力插件（Xvfb/截图/点击/OCR，需要多模态大脑输入）",
+    "harness 内置 subagent（spawn_agent：深度 1、并发 2–3、独立预算、继承红线）",
+    "群消息归档检索页面（显式开关）",
+    "MCP 渐进式工具发现与提示缓存稳定性优化",
+    "CI 矩阵：ubuntu/windows + ARM（ubuntu-24.04-arm / QEMU）"
+  ]
+}

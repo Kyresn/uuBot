@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.env
+*.log
+
+# 运行期配置与状态：models.json 含 API key，harness.json 含 wsToken，state/ 含对话记录，绝不入库
+# 注意：这些规则只覆盖仓库内默认的 config/。若用 CONFIG_DIR 指向仓库内其他
+# 路径（例如 ./.runtime），该目录不会被忽略，需要自行补充规则。
+/config/models.json
+/config/models.json.bak
+/config/harness.json
+/config/harness.json.bak
+/config/*.bak
+# 原子写入的临时文件同样含明文配置（保存中途崩溃会残留）
+/config/.*.tmp
+/state/
+
+# 本地会话/工具产物：含对话日志与临时工作区，绝不入库
+.remember/
+.superpowers/
+.vscode/
+.claude/
